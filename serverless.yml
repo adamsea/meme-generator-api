@@ -5,6 +5,7 @@ service: meme-generator
 custom:
   memes_table: 'memes-table-${self:provider.stage}'
   images_table: 'images-table-${self:provider.stage}'
+  images_bucket: 'gdi-buffalo-react-images'
 
 provider:
   name: aws
@@ -22,6 +23,12 @@ provider:
       Resource:
         - { "Fn::GetAtt": [ "MemesDynamoDBTable", "Arn" ] }
         - { "Fn::GetAtt": [ "ImagesDynamoDBTable", "Arn" ] }
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:ListBucket
+      Resource: "arn:aws:s3:::${self:custom.images_bucket}/*"
   environment:
     MEMES_TABLE: ${self:custom.memes_table}
     IMAGES_TABLE: ${self:custom.images_table}
@@ -30,8 +37,14 @@ functions:
   meme_generator:
     handler: index.handler
     events:
-      - http: ANY /
-      - http: 'ANY {proxy+}'
+      - http:
+          cors: true
+          path: / # this matches the base path
+          method: ANY
+      - http:
+          cors: true
+          path: /{proxy+} # this matches any path, the token 'proxy' doesn't mean anything special
+          method: ANY
 
 resources:
   Resources:
