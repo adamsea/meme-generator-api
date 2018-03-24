@@ -1,0 +1,67 @@
+# serverless.yml
+
+service: meme-generator
+
+custom:
+  memes_table: 'memes-table-${self:provider.stage}'
+  images_table: 'images-table-${self:provider.stage}'
+
+provider:
+  name: aws
+  runtime: nodejs6.10
+  region: us-east-1
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - { "Fn::GetAtt": [ "MemesDynamoDBTable", "Arn" ] }
+        - { "Fn::GetAtt": [ "ImagesDynamoDBTable", "Arn" ] }
+  environment:
+    MEMES_TABLE: ${self:custom.memes_table}
+    IMAGES_TABLE: ${self:custom.images_table}
+
+functions:
+  meme_generator:
+    handler: index.handler
+    events:
+      - http: ANY /
+      - http: 'ANY {proxy+}'
+
+resources:
+  Resources:
+    MemesDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        TableName: ${self:custom.memes_table}
+    ImagesDynamoDBTable:
+      Type: 'AWS::DynamoDB::Table'
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: N
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        TableName: ${self:custom.images_table}
