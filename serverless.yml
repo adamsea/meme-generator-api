@@ -32,6 +32,7 @@ provider:
   environment:
     MEMES_TABLE: ${self:custom.memes_table}
     IMAGES_TABLE: ${self:custom.images_table}
+    IMAGES_BUCKET: ${self:custom.images_bucket}
 
 functions:
   meme_generator:
@@ -54,7 +55,7 @@ resources:
         AttributeDefinitions:
           -
             AttributeName: id
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           -
             AttributeName: id
@@ -69,7 +70,7 @@ resources:
         AttributeDefinitions:
           -
             AttributeName: id
-            AttributeType: N
+            AttributeType: S
         KeySchema:
           -
             AttributeName: id
