@@ -161,7 +161,7 @@ app.post('/memes', (req, res) => {
                     .promise()
                     .then((result) =>
                         Memes.create({
-                            title: result.Key,
+                            title,
                             src: result.Location
                         }, (err, newMeme) => {
                             if (err) {
