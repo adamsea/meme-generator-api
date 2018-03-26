@@ -152,6 +152,7 @@ app.post('/memes', (req, res) => {
                 }
                 fs.unlinkSync(filePath);
                 let name = filePath.split('/').slice(-1)[0];
+                name = `${ Math.floor(100000 + Math.random() * 900000) }-${ name }`;
                 return S3.upload({
                         Body: buf,
                         Bucket: process.env.IMAGES_BUCKET,
